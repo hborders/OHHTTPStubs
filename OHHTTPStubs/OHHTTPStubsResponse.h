@@ -27,11 +27,12 @@
 #pragma mark - Imports
 
 #import <Foundation/Foundation.h>
+#import "OHHTTPStubsResponder.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Types
 
-typedef void(^OHHTTPStubsResponder)(dispatch_block_t respondBlock);
+typedef void(^OHHTTPStubsResponderBlock)(OHHTTPStubsResponder* responder);
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Defines & Constants
@@ -62,7 +63,7 @@ OHHTTPStubsDownloadSpeedWifi;
 //! @note if responseTime<0, it is interpreted as a download speed in KBps ( -200 => 200KB/s )
 @property(nonatomic, assign) NSTimeInterval responseTime;
 @property(nonatomic, retain) NSError* error;
-@property(nonatomic, copy) OHHTTPStubsResponder responder;
+@property(nonatomic, copy) OHHTTPStubsResponderBlock responderBlock;
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Class Methods

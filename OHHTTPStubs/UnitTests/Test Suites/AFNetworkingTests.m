@@ -67,9 +67,9 @@ static const NSTimeInterval kResponseTimeTolerence = 0.5;
         return YES;
     } withStubResponse:^OHHTTPStubsResponse *(NSURLRequest *request) {
         OHHTTPStubsResponse *responseStub = [OHHTTPStubsResponse responseWithData:expectedResponse statusCode:200 responseTime:0 headers:nil];
-        responseStub.responder = ^(dispatch_block_t respondBlock)
+        responseStub.responderBlock = ^(OHHTTPStubsResponder *responder)
         {
-            [self notifyAsyncOperationDoneWithObject:respondBlock];
+            [self notifyAsyncOperationDoneWithObject:responder];
         };
         return responseStub;
     }];
@@ -86,13 +86,9 @@ static const NSTimeInterval kResponseTimeTolerence = 0.5;
     }];
     [op start];
     
-    dispatch_block_t respondBlock = [self waitForAsyncOperationObjectWithTimeout:kResponseTimeTolerence];
-    STAssertNotNil(respondBlock, @"Expected respondBlock");
-    if (respondBlock)
-    {
-        // STAssertNotNil doesn't stop execution, so guard against crashes
-        respondBlock();
-    }
+    OHHTTPStubsResponder *responder = [self waitForAsyncOperationObjectWithTimeout:kResponseTimeTolerence];
+    STAssertNotNil(responder, @"Expected responder");
+    [responder finish];
     
     [self waitForAsyncOperationWithTimeout:kResponseTimeTolerence];
     

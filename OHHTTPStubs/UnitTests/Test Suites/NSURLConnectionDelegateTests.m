@@ -150,9 +150,9 @@ static const NSTimeInterval kResponseTimeTolerence = 0.2;
                                                                        statusCode:200
                                                                      responseTime:0
                                                                           headers:nil];
-        responseStub.responder = ^(dispatch_block_t respondBlock)
+        responseStub.responderBlock = ^(OHHTTPStubsResponder *responder)
         {
-            [self notifyAsyncOperationDoneWithObject:respondBlock];
+            [self notifyAsyncOperationDoneWithObject:responder];
         };
         return responseStub;
     }];
@@ -162,13 +162,9 @@ static const NSTimeInterval kResponseTimeTolerence = 0.2;
     
     NSURLConnection* cxn = [NSURLConnection connectionWithRequest:req delegate:self];
     
-    dispatch_block_t respondBlock = [self waitForAsyncOperationObjectWithTimeout:kResponseTimeTolerence];
-    STAssertNotNil(respondBlock, @"Expected respondBlock");
-    if (respondBlock)
-    {
-        // STAssertNotNil doesn't stop execution, so guard against crashes
-        respondBlock();
-    }
+    OHHTTPStubsResponder *responder = [self waitForAsyncOperationObjectWithTimeout:kResponseTimeTolerence];
+    STAssertNotNil(responder, @"Expected responder");
+    [responder finish];
     
     [self waitForAsyncOperationWithTimeout:kResponseTimeTolerence];
     
@@ -218,9 +214,9 @@ static const NSTimeInterval kResponseTimeTolerence = 0.2;
     } withStubResponse:^OHHTTPStubsResponse *(NSURLRequest *request) {
         OHHTTPStubsResponse* resp = [OHHTTPStubsResponse responseWithError:expectedError];
         resp.responseTime = 0;
-        resp.responder = ^(dispatch_block_t respondBlock)
+        resp.responderBlock = ^(OHHTTPStubsResponder *responder)
         {
-            [self notifyAsyncOperationDoneWithObject:respondBlock];
+            [self notifyAsyncOperationDoneWithObject:responder];
         };
         return resp;
     }];
@@ -230,13 +226,9 @@ static const NSTimeInterval kResponseTimeTolerence = 0.2;
     
     NSURLConnection* cxn = [NSURLConnection connectionWithRequest:req delegate:self];
     
-    dispatch_block_t respondBlock = [self waitForAsyncOperationObjectWithTimeout:kResponseTimeTolerence];
-    STAssertNotNil(respondBlock, @"Expected respondBlock");
-    if (respondBlock)
-    {
-        // STAssertNotNil doesn't stop execution, so guard against crashes
-        respondBlock();
-    }
+    OHHTTPStubsResponder *responder = [self waitForAsyncOperationObjectWithTimeout:kResponseTimeTolerence];
+    STAssertNotNil(responder, @"Expected responder");
+    [responder finish];
     
     [self waitForAsyncOperationWithTimeout:kResponseTimeTolerence];
     
@@ -288,9 +280,9 @@ static const NSTimeInterval kResponseTimeTolerence = 0.2;
                                                                        statusCode:500
                                                                      responseTime:0
                                                                           headers:nil];
-        responseStub.responder = ^(dispatch_block_t respondBlock)
+        responseStub.responderBlock = ^(OHHTTPStubsResponder *responder)
         {
-            [self notifyAsyncOperationDoneWithObject:respondBlock];
+            [self notifyAsyncOperationDoneWithObject:responder];
         };
         return responseStub;
     }];
@@ -298,16 +290,12 @@ static const NSTimeInterval kResponseTimeTolerence = 0.2;
     NSURLRequest* req = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://www.iana.org/domains/example/"]];
     NSURLConnection* cxn = [NSURLConnection connectionWithRequest:req delegate:self];
     
-    dispatch_block_t respondBlock = [self waitForAsyncOperationObjectWithTimeout:kResponseTimeTolerence];
-    STAssertNotNil(respondBlock, @"Expected respondBlock");
+    OHHTTPStubsResponder *responder = [self waitForAsyncOperationObjectWithTimeout:kResponseTimeTolerence];
+    STAssertNotNil(responder, @"Expected responder");
     
     [cxn cancel];
     
-    if (respondBlock)
-    {
-        // STAssertNotNil doesn't stop execution, so guard against crashes
-        respondBlock();
-    }
+    [responder finish];
     
     [self waitForTimeout:1.5];
     
@@ -495,9 +483,9 @@ static const NSTimeInterval kResponseTimeTolerence = 0.2;
                                                                            statusCode:311 // any 300-level request will do
                                                                          responseTime:0
                                                                               headers:headers];
-            responseStub.responder = ^(dispatch_block_t respondBlock)
+            responseStub.responderBlock = ^(OHHTTPStubsResponder *responder)
             {
-                [self notifyAsyncOperationDoneWithObject:respondBlock];
+                [self notifyAsyncOperationDoneWithObject:responder];
             };
             return responseStub;
         } else {
@@ -507,9 +495,9 @@ static const NSTimeInterval kResponseTimeTolerence = 0.2;
                                                                             statusCode:200
                                                                           responseTime:0
                                                                                headers:headers];
-            responseStub.responder = ^(dispatch_block_t respondBlock)
+            responseStub.responderBlock = ^(OHHTTPStubsResponder *responder)
             {
-                [self notifyAsyncOperationDoneWithObject:respondBlock];
+                [self notifyAsyncOperationDoneWithObject:responder];
             };
             return responseStub;
         }
@@ -520,23 +508,15 @@ static const NSTimeInterval kResponseTimeTolerence = 0.2;
     
     NSURLConnection* cxn = [NSURLConnection connectionWithRequest:req delegate:self];
     
-    dispatch_block_t redirectRespondBlock = [self waitForAsyncOperationObjectWithTimeout:kResponseTimeTolerence];
-    STAssertNotNil(redirectRespondBlock, @"Expected respondBlock");
-    if (redirectRespondBlock)
-    {
-        // STAssertNotNil doesn't stop execution, so guard against crashes
-        redirectRespondBlock();
-    }
+    OHHTTPStubsResponder *redirectResponder = [self waitForAsyncOperationObjectWithTimeout:kResponseTimeTolerence];
+    STAssertNotNil(redirectResponder, @"Expected redirectResponder");
+    [redirectResponder finish];
     
     [self waitForAsyncOperationWithTimeout:kResponseTimeTolerence];
     
-    dispatch_block_t endRespondBlock = [self waitForAsyncOperationObjectWithTimeout:kResponseTimeTolerence];
-    STAssertNotNil(endRespondBlock, @"Expected respondBlock");
-    if (endRespondBlock)
-    {
-        // STAssertNotNil doesn't stop execution, so guard against crashes
-        endRespondBlock();
-    }
+    OHHTTPStubsResponder *endResponder = [self waitForAsyncOperationObjectWithTimeout:kResponseTimeTolerence];
+    STAssertNotNil(endResponder, @"Expected endResponder");
+    [endResponder finish];
     
     [self waitForAsyncOperationWithTimeout:kResponseTimeTolerence];
     

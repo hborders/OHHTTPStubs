@@ -23,6 +23,9 @@
 		099C73541690397600239880 /* AFHTTPRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 099C73501690397600239880 /* AFHTTPRequestOperation.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		099C73551690397600239880 /* AFURLConnectionOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 099C73531690397600239880 /* AFURLConnectionOperation.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		099C735716903B9800239880 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 099C735616903B9800239880 /* UIKit.framework */; };
+		B8298C73177F644F00738FC6 /* OHHTTPStubsRedirectResponder.m in Sources */ = {isa = PBXBuildFile; fileRef = B8298C72177F644F00738FC6 /* OHHTTPStubsRedirectResponder.m */; };
+		B8298C79177F744C00738FC6 /* OHHTTPStubsResponder.m in Sources */ = {isa = PBXBuildFile; fileRef = B8298C78177F744B00738FC6 /* OHHTTPStubsResponder.m */; };
+		B8298C7C177F7B9800738FC6 /* OHHTTPStubsErrorResponder.m in Sources */ = {isa = PBXBuildFile; fileRef = B8298C7B177F7B9800738FC6 /* OHHTTPStubsErrorResponder.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -63,6 +66,13 @@
 		099C73521690397600239880 /* AFURLConnectionOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFURLConnectionOperation.h; sourceTree = "<group>"; };
 		099C73531690397600239880 /* AFURLConnectionOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFURLConnectionOperation.m; sourceTree = "<group>"; };
 		099C735616903B9800239880 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		B8298C6B177F5FEF00738FC6 /* OHHTTPStubsResponder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OHHTTPStubsResponder.h; sourceTree = "<group>"; };
+		B8298C71177F644F00738FC6 /* OHHTTPStubsRedirectResponder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OHHTTPStubsRedirectResponder.h; sourceTree = "<group>"; };
+		B8298C72177F644F00738FC6 /* OHHTTPStubsRedirectResponder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OHHTTPStubsRedirectResponder.m; sourceTree = "<group>"; };
+		B8298C77177F744B00738FC6 /* OHHTTPStubsResponder+Protected.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "OHHTTPStubsResponder+Protected.h"; sourceTree = "<group>"; };
+		B8298C78177F744B00738FC6 /* OHHTTPStubsResponder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OHHTTPStubsResponder.m; sourceTree = "<group>"; };
+		B8298C7A177F7B9800738FC6 /* OHHTTPStubsErrorResponder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OHHTTPStubsErrorResponder.h; sourceTree = "<group>"; };
+		B8298C7B177F7B9800738FC6 /* OHHTTPStubsErrorResponder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OHHTTPStubsErrorResponder.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -122,6 +132,13 @@
 			children = (
 				09793597161B62C0006DB5D5 /* OHHTTPStubs.h */,
 				09793598161B62C0006DB5D5 /* OHHTTPStubs.m */,
+				B8298C7A177F7B9800738FC6 /* OHHTTPStubsErrorResponder.h */,
+				B8298C7B177F7B9800738FC6 /* OHHTTPStubsErrorResponder.m */,
+				B8298C71177F644F00738FC6 /* OHHTTPStubsRedirectResponder.h */,
+				B8298C72177F644F00738FC6 /* OHHTTPStubsRedirectResponder.m */,
+				B8298C77177F744B00738FC6 /* OHHTTPStubsResponder+Protected.h */,
+				B8298C6B177F5FEF00738FC6 /* OHHTTPStubsResponder.h */,
+				B8298C78177F744B00738FC6 /* OHHTTPStubsResponder.m */,
 				09793599161B62C0006DB5D5 /* OHHTTPStubsResponse.h */,
 				0979359A161B62C0006DB5D5 /* OHHTTPStubsResponse.m */,
 			);
@@ -272,6 +289,9 @@
 			files = (
 				0979359B161B62C0006DB5D5 /* OHHTTPStubs.m in Sources */,
 				0979359C161B62C0006DB5D5 /* OHHTTPStubsResponse.m in Sources */,
+				B8298C73177F644F00738FC6 /* OHHTTPStubsRedirectResponder.m in Sources */,
+				B8298C79177F744C00738FC6 /* OHHTTPStubsResponder.m in Sources */,
+				B8298C7C177F7B9800738FC6 /* OHHTTPStubsErrorResponder.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

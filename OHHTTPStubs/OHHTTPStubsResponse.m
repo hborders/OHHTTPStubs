@@ -50,7 +50,7 @@ const double OHHTTPStubsDownloadSpeedWifi   =- 12000 / 8; // kbps -> KB/s
 @synthesize responseData = responseData_;
 @synthesize responseTime = _responseTime;
 @synthesize error = error_;
-@synthesize responder = responder_;
+@synthesize responderBlock = responderBlock_;
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Setup & Teardown
@@ -87,7 +87,7 @@ const double OHHTTPStubsDownloadSpeedWifi   =- 12000 / 8; // kbps -> KB/s
     self.responseData = nil;
     self.responseTime = 0;
     self.error = nil;
-    self.responder = nil;
+    self.responderBlock = nil;
     [super dealloc];
 }
 #endif

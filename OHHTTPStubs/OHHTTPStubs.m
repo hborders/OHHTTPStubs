@@ -27,7 +27,9 @@
 #pragma mark - Imports
 
 #import "OHHTTPStubs.h"
-
+#import "OHHTTPStubsResponder+Protected.h"
+#import "OHHTTPStubsRedirectResponder.h"
+#import "OHHTTPStubsErrorResponder.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Types
@@ -274,34 +276,36 @@
         if (((responseStub.statusCode/100)==3) && redirectLocationURL)
         {
             NSURLRequest* redirectRequest = [NSURLRequest requestWithURL:redirectLocationURL];
-            dispatch_block_t respondBlock = [^{
-                [client URLProtocol:self wasRedirectedToRequest:redirectRequest redirectResponse:urlResponse];
-            } copy];
+            OHHTTPStubsRedirectResponder* redirectResponder = [[OHHTTPStubsRedirectResponder alloc] initWithProtocol:self
+                                                                                                              client:client
+                                                                                                            response:urlResponse
+                                                                                                     redirectRequest:redirectRequest];
 #if ! __has_feature(objc_arc)
-            [respondBlock autorelease];
+            [redirectResponder autorelease];
 #endif
-            if (responseStub.responder)
+            if (responseStub.responderBlock)
             {
-                responseStub.responder(respondBlock);
+                responseStub.responderBlock(redirectResponder);
             }
             else
             {
-                execute_after(responseTime, respondBlock);
+                execute_after(responseTime, ^{
+                    [client URLProtocol:self wasRedirectedToRequest:redirectRequest redirectResponse:urlResponse];
+                });
             }
         }
         else
         {
-            if (responseStub.responder)
+            if (responseStub.responderBlock)
             {
-                dispatch_block_t respondBlock = [^{
-                    [client URLProtocol:self didReceiveResponse:urlResponse cacheStoragePolicy:NSURLCacheStorageNotAllowed];
-                    [client URLProtocol:self didLoadData:responseStub.responseData];
-                    [client URLProtocolDidFinishLoading:self];
-                } copy];
+                OHHTTPStubsResponder *responder = [[OHHTTPStubsResponder alloc] initWithProtocol:self
+                                                                                          client:client
+                                                                                        response:urlResponse
+                                                                                            data:responseStub.responseData];
 #if ! __has_feature(objc_arc)
-                [respondBlock autorelease];
+                [responder autorelease];
 #endif
-                responseStub.responder(respondBlock);
+                responseStub.responderBlock(responder);
             }
             else
             {
@@ -319,20 +323,22 @@
 #endif
         }
     } else {
-        dispatch_block_t respondBlock = [^{
-            [client URLProtocol:self didFailWithError:responseStub.error];
-        } copy];
-#if ! __has_feature(objc_arc)
-        [respondBlock autorelease];
-#endif
-        if (responseStub.responder)
+        if (responseStub.responderBlock)
         {
-            responseStub.responder(respondBlock);
+            OHHTTPStubsErrorResponder *errorResponder = [[OHHTTPStubsErrorResponder alloc] initWithProtocol:self
+                                                                                                     client:client
+                                                                                                      error:responseStub.error];
+#if ! __has_feature(objc_arc)
+            [errorResponder autorelease];
+#endif
+            responseStub.responderBlock(errorResponder);
         }
         else
         {
             // Send the canned error
-            execute_after(responseStub.responseTime, respondBlock);
+            execute_after(responseStub.responseTime, ^{
+                [client URLProtocol:self didFailWithError:responseStub.error];
+            });
         }
     }
 }
