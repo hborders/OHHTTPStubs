@@ -12,6 +12,7 @@
 
 - (void)sendResponse;
 - (void)sendFactorOfRemainingData:(double)dataFactor;
+- (void)sendRemainingData;
 - (void)finish;
 - (void)finishWithError:(NSError *)error;
 

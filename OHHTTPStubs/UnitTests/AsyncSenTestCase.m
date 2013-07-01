@@ -109,6 +109,18 @@ static const NSTimeInterval kRunLoopSamplingInterval = 0.01;
     }
 }
 
+-(BOOL)pollAsyncOperationsWithWithTimeout:(NSTimeInterval)timeout pollBlock:(AsyncSenTestCaseAsyncOprationsPollBlock)pollBlock
+{
+    NSDate* waitEndDate = [NSDate dateWithTimeIntervalSinceNow:timeout];
+    BOOL done = NO;
+    while ([waitEndDate timeIntervalSinceNow]>0 && !done)
+    {
+        CFRunLoopRunInMode(kCFRunLoopDefaultMode, kRunLoopSamplingInterval, YES);
+        done = pollBlock();
+    }
+    return done;
+}
+
 -(void)notifyAsyncOperationDone
 {
     @synchronized(self)

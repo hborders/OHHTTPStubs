@@ -32,6 +32,7 @@ static const NSTimeInterval kResponseTimeTolerence = 0.2;
 
 @implementation NSURLConnectionDelegateTests
 {
+    NSURLResponse* _response;
     NSMutableData* _data;
     NSError* _error;
     
@@ -51,6 +52,8 @@ static const NSTimeInterval kResponseTimeTolerence = 0.2;
 
 -(void)tearDown
 {
+    [_response release];
+    _response = nil;
     [_data release];
     // in case the test timed out and finished before a running NSURLConnection ended,
     // we may continue receive delegate messages anyway if we forgot to cancel.
@@ -85,6 +88,7 @@ static const NSTimeInterval kResponseTimeTolerence = 0.2;
 
 -(void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
 {
+    _response = [response retain];
     [_data setLength:0U];
 }
 
@@ -558,6 +562,77 @@ static const NSTimeInterval kResponseTimeTolerence = 0.2;
     
     // As a courtesy, restore previous policy before leaving
     [cookieStorage setCookieAcceptPolicy:previousAcceptPolicy];
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////
+#pragma mark Responder
+///////////////////////////////////////////////////////////////////////////////////
+
+// These tests can't work until NSURLProtocolClient sends corresponding messages to NSURLConnectionDelegate. :(
+- (void)testResponderSendResponse
+{
+    [OHHTTPStubs shouldStubRequestsPassingTest:^BOOL(NSURLRequest *request) {
+        return YES;
+    } withStubResponse:^OHHTTPStubsResponse *(NSURLRequest *request) {
+        OHHTTPStubsResponse *response = [OHHTTPStubsResponse responseWithData:[@"<this data should never have time to arrive>" dataUsingEncoding:NSUTF8StringEncoding]
+                                                                   statusCode:500
+                                                                 responseTime:0
+                                                                      headers:nil];
+        response.responderBlock = (^(OHHTTPStubsResponder *responder)
+        {
+            [self notifyAsyncOperationDoneWithObject:responder];
+        });
+        return response;
+    }];
+    
+    NSURLRequest* req = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://www.iana.org/domains/example/"]];
+    NSURLConnection* cxn = [NSURLConnection connectionWithRequest:req delegate:self];
+    
+    OHHTTPStubsResponder *responder = [self waitForAsyncOperationObjectWithTimeout:kResponseTimeTolerence];
+    
+    [responder sendResponse];
+    NSError* expectedError = [NSError errorWithDomain:NSURLErrorDomain code:404 userInfo:nil];
+    [responder finishWithError:expectedError];
+    STAssertTrue([self pollAsyncOperationsWithWithTimeout:5
+                                                pollBlock:^BOOL{
+                                                    return (BOOL)(_response != nil);
+                                                }], @"Never received response");
+    
+    STAssertTrue([_response isKindOfClass:[NSHTTPURLResponse class]], @"Received unexpected response type");
+    NSHTTPURLResponse* HTTPURLResponse = (NSHTTPURLResponse*) _response;
+    STAssertEquals(HTTPURLResponse.statusCode, 500, @"Received unexpected status code");
+    STAssertEquals(_data.length, 0U, @"Received unexpected data after receiving an error");
+    STAssertEquals([_error code], [expectedError code], @"Received unexpected error");
+
+    
+    // in case we timed out before the end of the request (test failed), cancel the request to avoid further delegate method calls
+    [cxn cancel];
+    
+}
+
+- (void)testResponderSendFactorOfRemainingData {
+    
+}
+
+- (void)testResponderSendRemainingData {
+    
+}
+
+- (void)testResponderFinish {
+    
+}
+
+- (void)testResponderFinishWithError {
+    
+}
+
+- (void)testResponderFinishWithErrorAfterSendResponse {
+    
+}
+
+- (void)testResponderFinishWithErrorAfterSendFactorOfRemainingData {
+    
 }
 
 @end

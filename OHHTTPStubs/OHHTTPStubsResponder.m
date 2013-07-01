@@ -12,6 +12,8 @@
 @interface OHHTTPStubsResponder ()
 
 @property (atomic) BOOL sentResponse;
+@property (atomic) BOOL finished;
+@property (atomic) BOOL stopped;
 
 @end
 
@@ -47,36 +49,45 @@
 #pragma mark - public API
 
 - (void)sendResponse {
-    NSAssert(self.sentResponse == NO, @"Can't send response twice");
-    self.sentResponse = YES;
-    [self.client URLProtocol:self.protocol
-          didReceiveResponse:self.response
-          cacheStoragePolicy:NSURLCacheStorageNotAllowed];
+    if (self.stopped) {
+        NSAssert(NO, @"Can't send response when stopped");
+    } else if (self.sentResponse) {
+        NSAssert(NO, @"Can't send response twice");
+    } else {
+        self.sentResponse = YES;
+        [self validatedSendResponse];
+    }
 }
 
 - (void)sendFactorOfRemainingData:(double)dataFactor {
-    if (!self.sentResponse) {
-        [self sendResponse];
-    }
-    NSUInteger sendDataLength = [self.data length] * dataFactor;
-    if (sendDataLength) {
-        NSData *sendData = [self.data subdataWithRange:NSMakeRange(0,
-                                                                   sendDataLength)];
-        self.data = [self.data subdataWithRange:NSMakeRange(sendDataLength,
-                                                            [self.data length] - sendDataLength)];
-        [self.client URLProtocol:self.protocol
-                     didLoadData:sendData];
+    if (self.stopped) {
+        NSAssert(NO, @"Can't send data when stopped");
+    } else {
+        [self sendResponseIfNecessary];
+        NSUInteger sendDataLength = [self.data length] * dataFactor;
+        if (sendDataLength) {
+            NSData *sendData = [self.data subdataWithRange:NSMakeRange(0,
+                                                                       sendDataLength)];
+            self.data = [self.data subdataWithRange:NSMakeRange(sendDataLength,
+                                                                [self.data length] - sendDataLength)];
+            [self validatedSendData:sendData];
+        }
     }
 }
 
+- (void)sendRemainingData {
+    [self sendFactorOfRemainingData:1];
+}
+
 - (void)finish {
-    [self finishWithBlock:^{
+    [self finishWithValidatedFinishBlock:^{
+        [self sendRemainingData];
         [self.client URLProtocolDidFinishLoading:self.protocol];
     }];
 }
 
 - (void)finishWithError:(NSError *)error {
-    [self finishWithBlock:^{
+    [self finishWithValidatedFinishBlock:^{
         [self.client URLProtocol:self.protocol
                 didFailWithError:error];
     }];
@@ -84,20 +95,41 @@
 
 #pragma mark - protected API
 
-- (void)finishWithBlock:(dispatch_block_t)finishBlock {
-    if (self.finished) {
+- (void)validatedSendResponse {
+    [self.client URLProtocol:self.protocol
+          didReceiveResponse:self.response
+          cacheStoragePolicy:NSURLCacheStorageAllowed];
+}
+
+- (void)validatedSendData:(NSData *)sendData {
+    [self.client URLProtocol:self.protocol
+                 didLoadData:sendData];
+}
+
+- (void)finishWithValidatedFinishBlock:(dispatch_block_t)validatedFinishBlock {
+    if (self.stopped) {
+        NSAssert(NO, @"Can't finish when stopped");
+    } else if (self.finished) {
         NSAssert(NO, @"Can't finish twice");
     } else {
-        if (!self.sentResponse) {
-            [self sendResponse];
-        }
-        [self sendFactorOfRemainingData:1];
         self.finished = YES;
-        finishBlock();
+        validatedFinishBlock();
         
 #if ! __has_feature(objc_arc)
         self.protocol = nil;
 #endif
+    }
+}
+
+- (void)stopLoading {
+    self.stopped = YES;
+}
+
+#pragma mark - private API
+
+- (void)sendResponseIfNecessary {
+    if (!self.sentResponse) {
+        [self sendResponse];
     }
 }
 

@@ -15,13 +15,16 @@
 @property (atomic, retain) id<NSURLProtocolClient> client;
 @property (atomic, retain) NSURLResponse *response;
 @property (atomic, retain) NSData *data;
-@property (atomic) BOOL finished;
 
 - (id)initWithProtocol:(NSURLProtocol *)protocol
                 client:(id<NSURLProtocolClient>)client
               response:(NSURLResponse *)response
                   data:(NSData *)data;
 
-- (void)finishWithBlock:(dispatch_block_t)finishBlock;
+- (void)validatedSendResponse;
+- (void)validatedSendData:(NSData *)sendData;
+- (void)finishWithValidatedFinishBlock:(dispatch_block_t)validatedFinishBlock;
+
+- (void)stopLoading;
 
 @end

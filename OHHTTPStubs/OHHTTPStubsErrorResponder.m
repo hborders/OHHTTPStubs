@@ -30,8 +30,6 @@
     return self;
 }
 
-
-
 - (void)dealloc {
     self.error = nil;
 #if ! __has_feature(objc_arc)
@@ -41,11 +39,11 @@
 
 #pragma mark - OHHTTPStubsResponder
 
-- (void)sendResponse {
+- (void)validatedSendResponse {
     // nothing to do here. Don't send a response. Fail early.
 }
 
-- (void)sendFactorOfRemainingData:(double)dataFactor {
+- (void)validatedSendData:(NSData *)sendData {
     // no data to send
 }
 

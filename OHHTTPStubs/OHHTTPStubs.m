@@ -199,7 +199,22 @@
       requestTime:(double)requestTime;
 @end
 
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark - Private Interface
+
+@interface OHHTTPStubsProtocol()
+@property(nonatomic, retain) OHHTTPStubsResponder* responder;
+@end
+
 @implementation OHHTTPStubsProtocol
+
+- (void)dealloc
+{
+    self.responder = nil;
+#if ! __has_feature(objc_arc)
+    [super dealloc];
+#endif
+}
 
 + (BOOL)canInitWithRequest:(NSURLRequest *)request
 {
@@ -276,15 +291,16 @@
         if (((responseStub.statusCode/100)==3) && redirectLocationURL)
         {
             NSURLRequest* redirectRequest = [NSURLRequest requestWithURL:redirectLocationURL];
-            OHHTTPStubsRedirectResponder* redirectResponder = [[OHHTTPStubsRedirectResponder alloc] initWithProtocol:self
-                                                                                                              client:client
-                                                                                                            response:urlResponse
-                                                                                                     redirectRequest:redirectRequest];
-#if ! __has_feature(objc_arc)
-            [redirectResponder autorelease];
-#endif
             if (responseStub.responderBlock)
             {
+                OHHTTPStubsRedirectResponder* redirectResponder = [[OHHTTPStubsRedirectResponder alloc] initWithProtocol:self
+                                                                                                                  client:client
+                                                                                                                response:urlResponse
+                                                                                                         redirectRequest:redirectRequest];
+#if ! __has_feature(objc_arc)
+                [redirectResponder autorelease];
+#endif
+                self.responder = redirectResponder;
                 responseStub.responderBlock(redirectResponder);
             }
             else
@@ -305,6 +321,7 @@
 #if ! __has_feature(objc_arc)
                 [responder autorelease];
 #endif
+                self.responder = responder;
                 responseStub.responderBlock(responder);
             }
             else
@@ -331,6 +348,7 @@
 #if ! __has_feature(objc_arc)
             [errorResponder autorelease];
 #endif
+            self.responder = errorResponder;
             responseStub.responderBlock(errorResponder);
         }
         else
@@ -345,7 +363,7 @@
 
 - (void)stopLoading
 {
-
+    [self.responder stopLoading];
 }
 
 /////////////////////////////////////////////

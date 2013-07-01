@@ -25,11 +25,14 @@
 
 #import <SenTestingKit/SenTestingKit.h>
 
+typedef BOOL (^AsyncSenTestCaseAsyncOprationsPollBlock)(void);
+
 @interface AsyncSenTestCase : SenTestCase
 /** @note All the waitFor… methods run the current runloop while waiting to let other threads and operations to continue running **/
 -(void)waitForAsyncOperationWithTimeout:(NSTimeInterval)timeout; //!< Wait for one async operation
 -(void)waitForAsyncOperations:(NSUInteger)count withTimeout:(NSTimeInterval)timeout; //!< Wait for multiple async operations
 -(void)waitForTimeout:(NSTimeInterval)timeout; //!< Wait for a fixed amount of time
+-(BOOL)pollAsyncOperationsWithWithTimeout:(NSTimeInterval)timeout pollBlock:(AsyncSenTestCaseAsyncOprationsPollBlock)pollBlock;  //!< Wait for a fixed amount of time or until the pollBlock returns YES. Returns YES if the pollBlock ever returned YES.
 -(id)waitForAsyncOperationObjectWithTimeout:(NSTimeInterval)timeout; //!< Wait for one async operation that returns a value with notifyAsyncOperationDoneWithObject:
 -(NSDictionary *)waitForAsyncOperationObjects:(NSUInteger)count withTimeout:(NSTimeInterval)timeout; //!< Wait for multiple async operations that return a value with notifyAsyncOperationDoneWithObject:forKey:
 -(void)notifyAsyncOperationDone; //!< notify any waiter that the async op is done

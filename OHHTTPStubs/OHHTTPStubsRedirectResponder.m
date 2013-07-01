@@ -42,16 +42,16 @@
 
 #pragma mark - OHHTTPStubsResponder
 
-- (void)sendResponse {
+- (void)validatedSendResponse {
     // nothing to do here. will send the redirect in finish.
 }
 
-- (void)sendFactorOfRemainingData:(double)dataFactor {
+- (void)validatedSendData:(NSData *)sendData {
     // no data to send
 }
 
 - (void)finish {
-    [self finishWithBlock:^{
+    [self finishWithValidatedFinishBlock:^{
         [self.client URLProtocol:self.protocol
           wasRedirectedToRequest:self.redirectRequest
                 redirectResponse:self.response];
